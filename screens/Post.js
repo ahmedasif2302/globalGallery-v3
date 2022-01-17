@@ -172,9 +172,32 @@ export default function Post({ navigation }) {
     await uploadBytes(postImgPathReference, bytes);
   };
   const uploadPost = async () => {
-    await uploadImage().then(() => {
-      uploadForm();
-    });
+    // await uploadImage().then(() => {
+    //   uploadForm();
+    // });
+    const img = await fetch(image);
+    const bytes = await img.blob();
+    await uploadBytes(postImgPathReference, bytes)
+      .then(() => {
+        getDownloadURL(postImgPathReference).then((url) => {
+          setImageUrl(url);
+        });
+      })
+      .then(() => {
+        setDoc(doc(db, "posts", randomKey), {
+          title: title,
+          desc: desc,
+          image: imageUrl,
+          key: randomKey,
+          postDate: fullDate,
+          postTime: fullTime,
+          artist: artist,
+        });
+      })
+      .then(() => {
+        resetForm();
+        setSucessBottomSheetVisble(true);
+      });
   };
   const getImage = async () => {
     // Get the download URL
@@ -225,6 +248,7 @@ export default function Post({ navigation }) {
     );
   };
 
+  // #MAIN
   return (
     <SafeAreaView>
       <ScrollView>
