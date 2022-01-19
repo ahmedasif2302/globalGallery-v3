@@ -8,9 +8,18 @@ import {
   Button,
   ScrollView,
 } from "react-native";
+// ICONS
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+// FIREBASE IMPORTS
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { initializeApp } from "firebase/app";
+import firebaseConfig from "../config/firebaseConfig";
 
+// INITIALIZING FIREBASE CONFIG
+initializeApp(firebaseConfig);
+
+// //#region
 export default function SignIn({ navigation }) {
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
@@ -18,14 +27,28 @@ export default function SignIn({ navigation }) {
   const [passwordAgain, setPasswordAgain] = useState("");
   const [errorMessage, setErrorMessage] = useState(null);
 
+  // FIREBASE
+  const auth = getAuth();
+
+  // SIGN UP
+  // SIGN UP
   const storeName = async () => {
     try {
       await AsyncStorage.setItem("USER-NAME", userName);
-    } catch (error) {
-      // ERROR SAVING USER NAME
-    }
+    } catch (error) {}
   };
-
+  const signUpFirebase = async () => {
+    createUserWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        navigation.navigate("bottomTab");
+        setErrorMessage(null);
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        setErrorMessage(errorCode);
+      });
+  };
   // VALIDATION
   function signUpHandler() {
     if (userName.length < 1) {
@@ -37,8 +60,8 @@ export default function SignIn({ navigation }) {
     } else if (passwordAgain !== password) {
       setErrorMessage("Password Not Matching");
     } else {
-      setErrorMessage(null);
       storeName();
+      signUpFirebase();
     }
   }
 
@@ -209,5 +232,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
     fontSize: 15,
     fontWeight: "500",
+    letterSpacing: 2,
   },
 });
+// //#endregion

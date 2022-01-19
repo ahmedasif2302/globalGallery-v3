@@ -7,6 +7,7 @@ import {
   FlatList,
   Image,
 } from "react-native";
+// IMPORT SAFE AREA VIEW
 import { SafeAreaView } from "react-native-safe-area-context";
 
 // CARD PACKAGE
@@ -18,7 +19,8 @@ import {
   CardButton,
   CardImage,
 } from "react-native-cards";
-// FIREBASE
+
+// FIREBASE IMPORTS
 import {
   collection,
   getDocs,
@@ -31,7 +33,10 @@ import firebaseConfig from "../config/firebaseConfig";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { initializeApp } from "firebase/app";
 
+initializeApp(firebaseConfig);
 export default function ViewPost({ navigation }) {
+  // #MAIN
+  const [posts, setPosts] = useState([]);
   // FIREBASE
   const db = getFirestore();
   const storage = getStorage();
@@ -47,8 +52,6 @@ export default function ViewPost({ navigation }) {
     setPosts(taskList);
     console.log(taskList);
   };
-
-  const [posts, setPosts] = useState([]);
   return (
     <SafeAreaView>
       <View style={styles.container}>
@@ -72,12 +75,6 @@ export default function ViewPost({ navigation }) {
                     />
                   </CardAction>
                 </Card>
-                {/* <Image
-                  source={{
-                    uri: item.image,
-                  }}
-                  style={{ width: 100, height: 100 }}
-                /> */}
               </ScrollView>
             )}
           />

@@ -6,19 +6,44 @@ import {
   TextInput,
   TouchableOpacity,
 } from "react-native";
+// FIREBASE IMPORTS
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { initializeApp } from "firebase/app";
+import firebaseConfig from "../config/firebaseConfig";
 
+// INITIALIZING FIREBASE CONFIG
+initializeApp(firebaseConfig);
+
+//#region
 export default function SignIn({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
+  // FIREBASE
+  const auth = getAuth();
+  // SIGN IN
+  const signInFirebase = async () => {
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        const user = userCredential.user;
+        navigation.navigate("bottomTab");
+        setErrorMessage(null);
+      })
+      .catch((error) => {
+        const errorCode = error.code;
+        const errorMessage = error.message;
+        setErrorMessage(errorCode);
+      });
+  };
+  // VALIDATION
   const submitSignIn = () => {
     if (email.length < 5) {
-      setError("Enter A Valid Email Adress");
+      setErrorMessage("Enter A Valid Email Adress");
     } else if (password.length < 2) {
-      setError("Enter A Valid Password");
+      setErrorMessage("Enter A Valid Password");
     } else {
-      alert("Done");
+      signInFirebase();
     }
   };
   return (
@@ -59,6 +84,15 @@ export default function SignIn({ navigation }) {
               <Text style={{ color: "#23A6D5" }}>Sign Up</Text>
             </Text>
           </TouchableOpacity>
+
+          {/* CHECKING IF ERROR MESSAGE IS THERE */}
+          {errorMessage ? (
+            <View style={styles.errorArea}>
+              <Text style={styles.errorMessage}>{errorMessage}</Text>
+            </View>
+          ) : (
+            <Text /> // SIMPLY NOTHING
+          )}
         </View>
       </View>
     </>
@@ -127,4 +161,21 @@ const styles = StyleSheet.create({
     paddingTop: 15,
     textAlign: "center",
   },
+  errorArea: {
+    backgroundColor: "#FA2A55",
+    paddingTop: 25,
+    paddingBottom: 25,
+    borderRadius: 3,
+    marginTop: 10,
+    borderRadius: 5,
+  },
+  errorMessage: {
+    color: "#fff",
+    textAlign: "center",
+    fontSize: 15,
+    fontWeight: "500",
+    letterSpacing: 2,
+  },
 });
+
+//#endregion

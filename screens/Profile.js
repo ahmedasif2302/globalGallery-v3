@@ -1,5 +1,6 @@
 import React, { useState, useEffect, createRef, useRef } from "react";
 import { View, Text, StyleSheet, TouchableOpacity } from "react-native";
+// SAFE AREA VIEW
 import { SafeAreaView } from "react-native-safe-area-context";
 // AVATOR -- GET'S THE FIRST 2 LETTERS
 import UserAvatar from "react-native-user-avatar";
@@ -15,10 +16,14 @@ import firebaseConfig from "../config/firebaseConfig";
 import { initializeApp } from "firebase/app";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
+// FIREBASE
+import { getAuth } from "firebase/auth";
+
 // INITALIZING FIREBASE CONFIG
 initializeApp(firebaseConfig);
 
-export default function Profile() {
+//#region
+export default function Profile(props) {
   // SETTING AVATOR IMAGE
   const [avator, setAvator] = useState("");
   // SAVES THE USER NAME FROM ASYNC STORAGE
@@ -31,6 +36,8 @@ export default function Profile() {
   // FIREBASE
   const storage = getStorage();
   const profilePathRef = ref(storage, "userProfiles/image.jpg");
+  const auth = getAuth();
+  const currentUser = auth.currentUser;
 
   // GET'S THE NAME ALL TIME FROM ASYNC STORAGE
   useEffect(() => {
@@ -159,6 +166,12 @@ export default function Profile() {
             <Text style={styles.btnText}>Save</Text>
           </TouchableOpacity>
         </View>
+        <Text style={styles.label}>Email: {currentUser.email}</Text>
+        <TouchableOpacity
+          onPress={() => props.navigation.navigate("PasswordReset")}
+        >
+          <Text style={styles.label}>Edit Password</Text>
+        </TouchableOpacity>
       </View>
       <View style={styles.bottomSheet}>
         <RBSheet
@@ -206,6 +219,13 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     textAlign: "center",
   },
+  label: {
+    textAlign: "center",
+    fontSize: 15,
+    color: "#e60557",
+    fontWeight: "bold",
+    paddingTop: 10,
+  },
   sheetHandle: {
     width: 40,
     borderRadius: 4,
@@ -238,3 +258,5 @@ const styles = StyleSheet.create({
     color: "white",
   },
 });
+
+//#endregion

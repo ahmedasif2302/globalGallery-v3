@@ -26,7 +26,10 @@ import firebaseConfig from "../config/firebaseConfig";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { initializeApp } from "firebase/app";
 
+// INITIALIZING APP
 initializeApp(firebaseConfig);
+
+//#region
 export default function Post({ navigation }) {
   useEffect(() => {
     showDate();
@@ -223,7 +226,6 @@ export default function Post({ navigation }) {
       alert("Check");
     });
   };
-
   // JSK FUNCTIONS
   const SelectSheetInner = () => {
     return (
@@ -458,3 +460,5 @@ const styles = StyleSheet.create({
     color: "white",
   },
 });
+
+//#endregion

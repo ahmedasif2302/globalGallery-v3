@@ -1,7 +1,9 @@
 import React from "react";
 import { View, Text, StyleSheet, Image } from "react-native";
+// SAFE AREA VIEW
 import { SafeAreaView } from "react-native-safe-area-context";
 
+//#region
 export default function Home({ navigation }) {
   return (
     <SafeAreaView>
@@ -48,3 +50,4 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
 });
+//#endregion

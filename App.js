@@ -10,7 +10,9 @@ import SignIn from "./screens/SignIn";
 
 // VISIBLE SCREENS STACK
 import Tabs from "./navigation/tabs";
+import PasswordReset from "./screens/PasswordReset";
 
+// STACKS
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
@@ -31,6 +33,11 @@ export default function App() {
           name="SignIn"
           component={SignIn}
           options={{ title: "SIGN IN" }}
+        />
+        <Tab.Screen
+          name="PasswordReset"
+          component={PasswordReset}
+          options={{ title: "PASSWORD RESET" }}
         />
         <Tab.Screen name="bottomTab" component={Tabs} />
         {/* <Tabs /> */}
