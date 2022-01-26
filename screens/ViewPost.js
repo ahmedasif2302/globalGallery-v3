@@ -5,7 +5,8 @@ import {
   StyleSheet,
   ScrollView,
   FlatList,
-  Image,
+  TouchableOpacity,
+  Button,
 } from "react-native";
 // IMPORT SAFE AREA VIEW
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -43,7 +44,7 @@ export default function ViewPost({ navigation }) {
 
   useEffect(() => {
     getPosts();
-  }, [""]);
+  }, []);
   // GETTING DATA FROM FIREBASE FIRESTORE
   const getPosts = async () => {
     const taskCol = collection(db, "posts");
@@ -53,34 +54,59 @@ export default function ViewPost({ navigation }) {
     console.log(taskList);
   };
   return (
-    <SafeAreaView>
-      <View style={styles.container}>
-        <Text style={styles.title}>Other's Post</Text>
-        <View style={styles.card}>
-          <FlatList
-            data={posts}
-            renderItem={({ item }) => (
-              <ScrollView>
-                <Card style={{ marginTop: 30 }}>
-                  <CardImage source={{ uri: item.image }} />
-                  <CardTitle subtitle={item.title} />
-                  <CardContent text={item.desc} />
-                  <CardContent text={item.artist} />
-                  <CardContent text={item.postDate} />
-                  <CardAction separator={true} inColumn={false}>
-                    <CardButton
-                      onPress={() => {}}
-                      title="Share"
-                      color="#FEB557"
-                    />
-                  </CardAction>
-                </Card>
-              </ScrollView>
-            )}
-          />
-        </View>
-      </View>
-    </SafeAreaView>
+    <>
+      <SafeAreaView>
+        {posts?.[0] ? (
+          <>
+            <View style={styles.container}>
+              <Text style={styles.title}>Other's Post</Text>
+              <TouchableOpacity style={styles.btn} onPress={getPosts}>
+                <Text style={styles.btnText}>LOAD MORE..</Text>
+              </TouchableOpacity>
+              <View style={styles.card}>
+                <FlatList
+                  data={posts}
+                  keyExtractor={(item) => item.key}
+                  ListFooterComponent={<View style={{ height: 310 }} />}
+                  renderItem={({ item }) => (
+                    <ScrollView>
+                      <Card style={{ marginTop: 30 }}>
+                        <CardImage source={{ uri: item.image }} />
+                        <CardTitle subtitle={item.title} />
+                        <CardContent text={item.desc} />
+                        <CardContent text={item.artist} />
+                        <CardContent text={item.postDate} />
+                        <CardAction separator={true} inColumn={false}>
+                          <CardButton
+                            onPress={() => {}}
+                            title="Share"
+                            color="#FEB557"
+                          />
+                        </CardAction>
+                      </Card>
+                    </ScrollView>
+                  )}
+                />
+              </View>
+            </View>
+          </>
+        ) : (
+          <>
+            <Text
+              style={{
+                color: "#30a145",
+                textAlign: "center",
+                fontWeight: "bold",
+                marginTop: "50%",
+                fontSize: 20,
+              }}
+            >
+              No Posts. Let Your Post Be The First
+            </Text>
+          </>
+        )}
+      </SafeAreaView>
+    </>
   );
 }
 
@@ -91,6 +117,19 @@ const styles = StyleSheet.create({
   title: {
     color: "#30a145",
     fontSize: 30,
+    textAlign: "center",
+    fontWeight: "bold",
+  },
+  btn: {
+    backgroundColor: "#30a145",
+    padding: 10,
+    width: "90%",
+    alignSelf: "center",
+    marginTop: 20,
+    marginBottom: 10,
+  },
+  btnText: {
+    color: "#fff",
     textAlign: "center",
     fontWeight: "bold",
   },

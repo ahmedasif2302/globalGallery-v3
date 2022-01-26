@@ -14,7 +14,6 @@ import RBSheet from "react-native-raw-bottom-sheet";
 import firebaseConfig from "../config/firebaseConfig";
 // FIREBASE REQUIREMENTS
 import { initializeApp } from "firebase/app";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 // FIREBASE
 import { getAuth } from "firebase/auth";
@@ -34,20 +33,19 @@ export default function Profile(props) {
   const [displayEditBtn, setDisplayEditBtn] = useState("block");
   const [displaySaveBtn, setDisplaySaveBtn] = useState("none");
   // FIREBASE
-  const storage = getStorage();
-  const profilePathRef = ref(storage, "userProfiles/image.jpg");
+  const profilePathRef = `PROFILE-PIC${currentUser?.uid}`;
   const auth = getAuth();
   const currentUser = auth.currentUser;
 
   // GET'S THE NAME ALL TIME FROM ASYNC STORAGE
   useEffect(() => {
     getName();
-  });
+  }, []);
 
   // GET'S THE PROFILE PIC FROM FIREBASE STORAGE
   useEffect(() => {
     getProfile();
-  }, [""]);
+  }, []);
 
   const getName = async () => {
     try {
@@ -97,6 +95,12 @@ export default function Profile(props) {
       setAvator(result.uri);
       refRBSheet.current.close();
     }
+
+    if (pickerResult.uri == null) {
+    } else {
+      setDisplaySaveBtn("block");
+      setDisplayEditBtn("none");
+    }
   };
   const BottomSheetInner = () => {
     return (
@@ -121,31 +125,25 @@ export default function Profile(props) {
     );
   };
   const saveProfile = async () => {
-    const img = await fetch(avator);
-    const bytes = await img.blob();
-
-    await uploadBytes(profilePathRef, bytes).then(() => {
-      alert("Updated Your Profile Sucessfuly");
-    });
-  };
-  const getProfile = () => {
-    // Get the download URL
-    getDownloadURL(profilePathRef)
-      .then((url) => {
-        setAvator(url);
-      })
-      .catch((error) => {
-        switch (error.code) {
-          case "storage/object-not-found":
-            break;
-          case "storage/unauthorized":
-            break;
-          case "storage/canceled":
-            break;
-          case "storage/unknown":
-            break;
-        }
+    try {
+      await AsyncStorage.setItem(profilePathRef, avator).then(() => {
+        setDisplayEditBtn("block");
+        setDisplaySaveBtn("none");
       });
+    } catch (error) {
+      alert("Error Saving Profile");
+    }
+  };
+  const getProfile = async () => {
+    try {
+      const value = await AsyncStorage.getItem(profilePathRef);
+      if (value !== null) {
+        setAvator(value);
+      }
+    } catch (error) {
+      // Error retrieving data
+      alert("Error Getting Profile Pic");
+    }
   };
   return (
     <SafeAreaView>
@@ -170,7 +168,18 @@ export default function Profile(props) {
         <TouchableOpacity
           onPress={() => props.navigation.navigate("PasswordReset")}
         >
-          <Text style={styles.label}>Edit Password</Text>
+          <Text
+            style={{
+              ...styles.btn,
+              width: "90%",
+              alignSelf: "center",
+              color: "white",
+              textAlign: "center",
+              fontWeight: "bold",
+            }}
+          >
+            Edit Password
+          </Text>
         </TouchableOpacity>
       </View>
       <View style={styles.bottomSheet}>

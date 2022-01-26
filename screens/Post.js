@@ -9,9 +9,12 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   ScrollView,
+  ActivityIndicator,
+  Modal,
 } from "react-native";
 // SAFE AREA VIEW
 import { SafeAreaView } from "react-native-safe-area-context";
+// ICONS
 import { Ionicons } from "@expo/vector-icons";
 // PICKING AND TAKING IMAGE FROM EXPO-IMAGE-PICKER
 import * as ImagePicker from "expo-image-picker";
@@ -31,11 +34,16 @@ initializeApp(firebaseConfig);
 
 //#region
 export default function Post({ navigation }) {
+  const [postLoading, setPostLoading] = useState(false);
+
+  useEffect(() => {
+    getName();
+  });
   useEffect(() => {
     showDate();
     showTime();
-    getName();
   });
+
   // RANDOM KEY
   const randomKey = generateKey(8);
   // FORM REQUIREMENTS
@@ -47,10 +55,12 @@ export default function Post({ navigation }) {
   const db = getFirestore();
   const storage = getStorage();
   const postImgPathReference = ref(storage, `posts/${randomKey}`);
-  const [imageUrl, setImageUrl] = useState("");
+
   //
   const [fullTime, setFullTime] = useState(null);
   const [fullDate, setFullDate] = useState(null);
+
+  const [loadingModal, setLoadingModal] = useState(false);
 
   // BOTTOM SHEET REFERENCE
   const selectRBSheet = useRef();
@@ -59,6 +69,31 @@ export default function Post({ navigation }) {
     useState(false);
 
   // FUNCTIONS
+  // LOADING FUNCTION
+  const loading = () => {
+    return (
+      <Modal visible={loadingModal} animationType="fade">
+        <View
+          style={{
+            flex: 1,
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: "row",
+          }}
+        >
+          <ActivityIndicator
+            size="large"
+            color="dodgerblue"
+            style={{
+              justifyContent: "center",
+              alignItems: "center",
+              fontSize: 200,
+            }}
+          />
+        </View>
+      </Modal>
+    );
+  };
   const showTime = () => {
     let date = new Date();
     let hour = date.getHours(); // 0 - 23
@@ -97,8 +132,11 @@ export default function Post({ navigation }) {
       const value = await AsyncStorage.getItem("USER-NAME");
       if (value !== null) {
         setArtist(value);
+        console.log(value);
       }
-    } catch (error) {}
+    } catch (error) {
+      // Error retrieving data
+    }
   };
   function generateKey(length) {
     const characters =
@@ -112,6 +150,7 @@ export default function Post({ navigation }) {
 
     return result;
   }
+  // ERASING TITIE AND PAINTING DESC
   const resetForm = () => {
     setTitle("");
     setDesc("");
@@ -153,78 +192,34 @@ export default function Post({ navigation }) {
       selectRBSheet.current.close();
     }
   };
-  const uploadForm = async () => {
-    getImage().then(() => {
-      setDoc(doc(db, "posts", randomKey), {
-        title: title,
-        desc: desc,
-        image: imageUrl,
-        key: randomKey,
-        postDate: fullDate,
-        postTime: fullTime,
-        artist: artist,
-      }).then(() => {
-        resetForm();
-        setSucessBottomSheetVisble(true);
-      });
-    });
-  };
-  const uploadImage = async () => {
-    const img = await fetch(image);
-    const bytes = await img.blob();
-    await uploadBytes(postImgPathReference, bytes);
-  };
   const uploadPost = async () => {
-    // await uploadImage().then(() => {
-    //   uploadForm();
-    // });
-    const img = await fetch(image);
-    const bytes = await img.blob();
-    await uploadBytes(postImgPathReference, bytes)
-      .then(() => {
+    if (title.length < 1) {
+      alert("Enter The Painting Title");
+    } else if (desc.length < 1) {
+      alert("All Inputs Are Required");
+    } else {
+      setLoadingModal(true);
+      setPostLoading(true);
+      const img = await fetch(image);
+      const bytes = await img.blob();
+      await uploadBytes(postImgPathReference, bytes).then(() => {
         getDownloadURL(postImgPathReference).then((url) => {
-          setImageUrl(url);
+          setDoc(doc(db, "posts", randomKey), {
+            title: title,
+            desc: desc,
+            image: url,
+            key: randomKey,
+            postDate: fullDate,
+            postTime: fullTime,
+            artist: artist,
+          });
         });
-      })
-      .then(() => {
-        setDoc(doc(db, "posts", randomKey), {
-          title: title,
-          desc: desc,
-          image: imageUrl,
-          key: randomKey,
-          postDate: fullDate,
-          postTime: fullTime,
-          artist: artist,
-        });
-      })
-      .then(() => {
-        resetForm();
-        setSucessBottomSheetVisble(true);
       });
-  };
-  const getImage = async () => {
-    // Get the download URL
-    getDownloadURL(postImgPathReference)
-      .then((url) => {
-        setImageUrl(url);
-      })
-      .catch((error) => {
-        switch (error.code) {
-          case "storage/object-not-found":
-            break;
-          case "storage/unauthorized":
-            break;
-          case "storage/canceled":
-            break;
-          case "storage/unknown":
-            break;
-        }
-      });
-    await setDoc(doc(db, "posts", randomKey), {
-      image: imageUrl,
-    }).then(() => {
-      alert("Check");
-    });
+      setSucessBottomSheetVisble(true);
+      setPostLoading(false);
+      setLoadingModal(false);
+      resetForm();
+    }
   };
   // JSK FUNCTIONS
   const SelectSheetInner = () => {
@@ -253,98 +248,107 @@ export default function Post({ navigation }) {
   // #MAIN
   return (
     <SafeAreaView>
-      <ScrollView>
-        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-          <View style={styles.container}>
-            <Text style={styles.title}>Add Post</Text>
+      {!postLoading ? (
+        <ScrollView>
+          <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+            <View style={styles.container}>
+              <Text style={styles.title}>Add Post</Text>
 
-            <View style={styles.form}>
-              <TouchableOpacity onPress={() => selectRBSheet.current.open()}>
-                <Ionicons
-                  name="camera-outline"
-                  color="#eb4c34"
-                  size={34}
-                  style={{ alignSelf: "center", paddingTop: 20 }}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity>
-                {image && (
-                  <Image source={{ uri: image }} style={styles.displayImage} />
-                )}
-              </TouchableOpacity>
+              <View style={styles.form}>
+                <TouchableOpacity onPress={() => selectRBSheet.current.open()}>
+                  <Ionicons
+                    name="camera-outline"
+                    color="#eb4c34"
+                    size={34}
+                    style={{ alignSelf: "center", paddingTop: 20 }}
+                  />
+                </TouchableOpacity>
+                <TouchableOpacity>
+                  {image && (
+                    <Image
+                      source={{ uri: image }}
+                      style={styles.displayImage}
+                    />
+                  )}
+                </TouchableOpacity>
 
-              <View style={styles.formContainer}>
-                <View style={styles.titleInput}>
-                  <Text style={styles.formLabel}>PAINTING TITLE</Text>
-                  <TextInput
-                    style={styles.formField}
-                    onChangeText={(title) => setTitle(title)}
-                    value={title}
-                    autoCorrect={false}
-                  />
-                </View>
-                <View style={styles.descInput}>
-                  <Text style={styles.formLabel}>PAINTING DESCRIPTION</Text>
-                  <TextInput
-                    style={styles.formField}
-                    onChangeText={(desc) => setDesc(desc)}
-                    value={desc}
-                    autoCorrect={false}
-                  />
-                </View>
-                <View style={styles.submitButton}>
-                  <TouchableOpacity
-                    style={styles.submitBtn}
-                    onPress={uploadPost}
-                  >
-                    <Text style={styles.submitBtnText}>SUBMIT POST</Text>
-                  </TouchableOpacity>
+                <View style={styles.formContainer}>
+                  <View style={styles.titleInput}>
+                    <Text style={styles.formLabel}>TITLE</Text>
+                    <TextInput
+                      style={styles.formField}
+                      onChangeText={(title) => setTitle(title)}
+                      value={title}
+                      autoCorrect={false}
+                    />
+                  </View>
+                  <View style={styles.descInput}>
+                    <Text style={styles.formLabel}>DESCRIPTION</Text>
+                    <TextInput
+                      style={styles.formField}
+                      onChangeText={(desc) => setDesc(desc)}
+                      value={desc}
+                      autoCorrect={false}
+                    />
+                  </View>
+                  <View style={styles.submitButton}>
+                    <TouchableOpacity
+                      style={styles.submitBtn}
+                      onPress={uploadPost}
+                    >
+                      <Text style={styles.submitBtnText}>SUBMIT POST</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
-            </View>
-            <View style={styles.bottomSheet}>
-              <RBSheet
-                ref={selectRBSheet}
-                closeOnDragDown={true}
-                closeOnPressMask={false}
-                closeOnPressMask={() => selectRBSheet.current.close()}
-                height={320}
-                customStyles={{
-                  draggableIcon: {
-                    opacity: 0.5,
-                    backgroundColor: "#000",
-                  },
-                }}
-              >
-                <SelectSheetInner />
-              </RBSheet>
-            </View>
-            <View style={styles.sucessModal}>
-              <BottomSheet
-                visible={sucessBottomSheetVisible}
-                onBackdropPress={() => setSucessBottomSheetVisble(false)}
-              >
-                <View style={styles.thankYouView}>
-                  <View style={{ alignItems: "center" }}>
-                    <Text style={styles.thankYouSheetTitle}>
-                      CONGRATULATIONS!
-                    </Text>
-                    <Text style={styles.thankYouSheetSubtitle}>
-                      Uploaded Your Post Sucessfully
-                    </Text>
+              <View style={styles.bottomSheet}>
+                <RBSheet
+                  ref={selectRBSheet}
+                  closeOnDragDown={true}
+                  closeOnPressMask={false}
+                  closeOnPressMask={() => selectRBSheet.current.close()}
+                  height={320}
+                  customStyles={{
+                    draggableIcon: {
+                      opacity: 0.5,
+                      backgroundColor: "#000",
+                    },
+                  }}
+                >
+                  <SelectSheetInner />
+                </RBSheet>
+              </View>
+              <View style={styles.sucessModal}>
+                <BottomSheet
+                  visible={sucessBottomSheetVisible}
+                  onBackdropPress={() => setSucessBottomSheetVisble(false)}
+                >
+                  <View style={styles.thankYouView}>
+                    <View style={{ alignItems: "center" }}>
+                      <Text style={styles.thankYouSheetTitle}>
+                        CONGRATULATIONS!
+                      </Text>
+                      <Text style={styles.thankYouSheetSubtitle}>
+                        Uploaded Your Post Sucessfully
+                      </Text>
+                    </View>
+                    <TouchableOpacity
+                      style={styles.thankYouSheetButton}
+                      onPress={() => setSucessBottomSheetVisble(false)}
+                    >
+                      <Text style={styles.thankYouSheetButtonTitle}>
+                        Done 👍
+                      </Text>
+                    </TouchableOpacity>
                   </View>
-                  <TouchableOpacity
-                    style={styles.thankYouSheetButton}
-                    onPress={() => setSucessBottomSheetVisble(false)}
-                  >
-                    <Text style={styles.thankYouSheetButtonTitle}>Done 👍</Text>
-                  </TouchableOpacity>
-                </View>
-              </BottomSheet>
+                </BottomSheet>
+              </View>
             </View>
-          </View>
-        </TouchableWithoutFeedback>
-      </ScrollView>
+          </TouchableWithoutFeedback>
+        </ScrollView>
+      ) : (
+        loading()
+      )}
     </SafeAreaView>
   );
 }

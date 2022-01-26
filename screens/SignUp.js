@@ -20,7 +20,7 @@ import firebaseConfig from "../config/firebaseConfig";
 initializeApp(firebaseConfig);
 
 // //#region
-export default function SignIn({ navigation }) {
+export default function SignUp({ navigation }) {
   const [userName, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -32,9 +32,11 @@ export default function SignIn({ navigation }) {
 
   // SIGN UP
   // SIGN UP
-  const storeName = async () => {
+  const storeLocal = async () => {
     try {
       await AsyncStorage.setItem("USER-NAME", userName);
+      await AsyncStorage.setItem("EMAIL-ADRESS", email);
+      await AsyncStorage.setItem("PASSWORD", password);
     } catch (error) {}
   };
   const signUpFirebase = async () => {
@@ -60,7 +62,7 @@ export default function SignIn({ navigation }) {
     } else if (passwordAgain !== password) {
       setErrorMessage("Password Not Matching");
     } else {
-      storeName();
+      storeLocal();
       signUpFirebase();
     }
   }

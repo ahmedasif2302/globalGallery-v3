@@ -7,10 +7,11 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 // NON DISPLAY SCREENS
 import SignUp from "./screens/SignUp";
 import SignIn from "./screens/SignIn";
+import OnBoarding from "./screens/OnBoarding";
+import PasswordReset from "./screens/PasswordReset";
 
 // VISIBLE SCREENS STACK
 import Tabs from "./navigation/tabs";
-import PasswordReset from "./screens/PasswordReset";
 
 // STACKS
 const Tab = createBottomTabNavigator();
@@ -21,9 +22,10 @@ export default function App() {
   return (
     <NavigationContainer>
       <Stack.Navigator
-        initialRouteName="SignIn"
+        initialRouteName="OnBoarding"
         screenOptions={{ headerShown: false }}
       >
+        <Tab.Screen name="OnBoarding" component={OnBoarding} />
         <Tab.Screen
           name="SignUp"
           component={SignUp}

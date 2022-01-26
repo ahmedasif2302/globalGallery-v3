@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
+// NATIVE IMPORTS
 import {
   View,
   Text,
   StyleSheet,
   TextInput,
   TouchableOpacity,
+  Button,
 } from "react-native";
 // FIREBASE IMPORTS
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
@@ -46,11 +48,13 @@ export default function SignIn({ navigation }) {
       signInFirebase();
     }
   };
+
   return (
     <>
       <View style={styles.leftCircle}></View>
       <View style={styles.rightCircle}></View>
       <View style={styles.container}>
+        <Button title="TEMP" onPress={() => navigation.navigate("bottomTab")} />
         <Text style={styles.title}>WELCOME BACK !</Text>
         <View style={styles.formContainer}>
           <View style={styles.emailInput}>
