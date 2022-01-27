@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from "react";
+// NATIVE IMPORTS
 import {
   View,
   Text,
   StyleSheet,
   TextInput,
   TouchableOpacity,
-  Button,
   ScrollView,
 } from "react-native";
 // ICONS
@@ -85,12 +85,8 @@ export default function SignUp({ navigation }) {
         <View style={styles.container}>
           <Text style={styles.title}>SIGN UP TO GET STARTED</Text>
           <View style={styles.formContainer}>
-            <Button
-              title="TEMP"
-              onPress={() => navigation.navigate("bottomTab")}
-            />
-            <View style={styles.userNameInput}>
-              <Text style={styles.formLabel}>USER NAME</Text>
+            <View style={{ ...styles.userNameInput, paddingTop: 10 }}>
+              <Text style={styles.formLabel}>NAME</Text>
               <TextInput
                 style={styles.formField}
                 onChangeText={(name) => setUserName(name)}
@@ -99,7 +95,7 @@ export default function SignUp({ navigation }) {
               />
             </View>
 
-            <View style={styles.emailInput}>
+            <View style={{ ...styles.emailInput, paddingTop: 10 }}>
               <Text style={styles.formLabel}>EMAIL ADRESS</Text>
               <TextInput
                 style={styles.formField}
@@ -110,7 +106,7 @@ export default function SignUp({ navigation }) {
               />
             </View>
 
-            <View style={styles.passwordInput}>
+            <View style={{ ...styles.passwordInput, paddingTop: 10 }}>
               <Text style={styles.formLabel}>PASSWORD</Text>
               <TextInput
                 style={styles.formField}
@@ -122,8 +118,8 @@ export default function SignUp({ navigation }) {
               />
             </View>
 
-            <View style={styles.passwordAgainInput}>
-              <Text style={styles.formLabel}>PASSWORD AGAIN</Text>
+            <View style={{ ...styles.passwordAgainInput, paddingTop: 10 }}>
+              <Text style={styles.formLabel}>CONFIRM PASSWORD</Text>
               <TextInput
                 style={styles.formField}
                 onChangeText={(password) => setPasswordAgain(password)}
@@ -157,7 +153,7 @@ const styles = StyleSheet.create({
   leftCircle: {
     backgroundColor: "#23A6D5",
     width: "60%",
-    height: "30%",
+    height: "33%",
     borderRadius: 150,
     position: "absolute",
     top: -50,
@@ -166,7 +162,7 @@ const styles = StyleSheet.create({
   rightCircle: {
     backgroundColor: "#8022d9",
     width: "80%",
-    height: "45%",
+    height: "48%",
     borderRadius: 250,
     position: "absolute",
     top: -150,
@@ -183,19 +179,19 @@ const styles = StyleSheet.create({
   },
   title: {
     textAlign: "center",
-    fontSize: 20,
+    fontSize: 30,
     fontWeight: "bold",
     color: "#23A6D5",
-    paddingTop: 40,
+    fontFamily: "extraBold-special-title",
   },
   formContainer: {
     marginLeft: 64,
-    marginTop: 32,
     marginRight: 32,
   },
   formLabel: {
     color: "#8e93a1",
-    paddingTop: 20,
+    fontSize: 20,
+    fontFamily: "semiBold-special-description",
   },
   formField: {
     borderBottomWidth: 1,

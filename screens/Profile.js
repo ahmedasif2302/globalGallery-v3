@@ -14,15 +14,22 @@ import RBSheet from "react-native-raw-bottom-sheet";
 import firebaseConfig from "../config/firebaseConfig";
 // FIREBASE REQUIREMENTS
 import { initializeApp } from "firebase/app";
-
 // FIREBASE
-import { getAuth } from "firebase/auth";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+// IMPORTING AWESOME ALERT
+import AwesomeAlert from "react-native-awesome-alerts";
 
 // INITALIZING FIREBASE CONFIG
 initializeApp(firebaseConfig);
-
 //#region
 export default function Profile(props) {
+  // GET'S THE NAME AND PHOTO URL ALL TIME FROM ASYNC STORAGE
+  useEffect(() => {
+    getName();
+    getProfile();
+  });
+
+  // # VARIABLES
   // SETTING AVATOR IMAGE
   const [avator, setAvator] = useState("");
   // SAVES THE USER NAME FROM ASYNC STORAGE
@@ -36,17 +43,31 @@ export default function Profile(props) {
   const profilePathRef = `PROFILE-PIC${currentUser?.uid}`;
   const auth = getAuth();
   const currentUser = auth.currentUser;
+  // ALERT
+  // SHOW SIGN OUT ALERT
+  const [signOutAlertVisible, setSignOutAlertVisible] = useState(false);
 
-  // GET'S THE NAME ALL TIME FROM ASYNC STORAGE
-  useEffect(() => {
-    getName();
-  }, []);
-
-  // GET'S THE PROFILE PIC FROM FIREBASE STORAGE
-  useEffect(() => {
-    getProfile();
-  }, []);
-
+  // # FUNCTIONS
+  // SIGN OUT
+  const showAlert = () => {
+    setSignOutAlertVisible(true);
+  };
+  const hideAlert = () => {
+    setSignOutAlertVisible(false);
+  };
+  const SignOutPermistion = async () => {
+    showAlert();
+  };
+  const signOutScreen = async () => {
+    signOut(auth)
+      .then(() => {
+        props.navigation.navigate("OnBoarding");
+      })
+      .catch((error) => {
+        // An error happened.
+        alert(error.code);
+      });
+  };
   const getName = async () => {
     try {
       const value = await AsyncStorage.getItem("USER-NAME");
@@ -57,6 +78,7 @@ export default function Profile(props) {
       // Error retrieving data
     }
   };
+  // IMAGE PICKER
   const pickImage = async () => {
     let permissionResult =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -102,6 +124,7 @@ export default function Profile(props) {
       setDisplayEditBtn("none");
     }
   };
+  // JSK
   const BottomSheetInner = () => {
     return (
       <>
@@ -124,6 +147,7 @@ export default function Profile(props) {
       </>
     );
   };
+  // SAVING AND GETTING PROFILE URL
   const saveProfile = async () => {
     try {
       await AsyncStorage.setItem(profilePathRef, avator).then(() => {
@@ -165,6 +189,7 @@ export default function Profile(props) {
           </TouchableOpacity>
         </View>
         <Text style={styles.label}>Email: {currentUser.email}</Text>
+        {/* EDIT PASSWORD BUTTON */}
         <TouchableOpacity
           onPress={() => props.navigation.navigate("PasswordReset")}
         >
@@ -179,6 +204,22 @@ export default function Profile(props) {
             }}
           >
             Edit Password
+          </Text>
+        </TouchableOpacity>
+        {/* SIGN OUT BUTTON */}
+        <TouchableOpacity onPress={showAlert}>
+          <Text
+            style={{
+              ...styles.btn,
+              width: "90%",
+              alignSelf: "center",
+              color: "white",
+              textAlign: "center",
+              fontWeight: "bold",
+              backgroundColor: "#fc034e",
+            }}
+          >
+            Sign Out
           </Text>
         </TouchableOpacity>
       </View>
@@ -199,6 +240,27 @@ export default function Profile(props) {
           <BottomSheetInner />
         </RBSheet>
       </View>
+      {/* AWESOME ALERT */}
+      <>
+        <AwesomeAlert
+          show={signOutAlertVisible}
+          showProgress={false}
+          title="ARE YOUR SURE"
+          message="YOU WANT TO SIGN OUT"
+          closeOnTouchOutside={true}
+          closeOnHardwareBackPress={false}
+          showCancelButton={true}
+          onCancelPressed={hideAlert}
+          onConfirmPressed={signOutScreen}
+          showConfirmButton={true}
+          cancelText="No, cancel"
+          confirmText="Yes, Sign out"
+          confirmButtonColor="#f20570"
+          cancelButtonColor="#000"
+          onCancelPressed={hideAlert}
+          onConfirmPressed={signOutScreen}
+        />
+      </>
     </SafeAreaView>
   );
 }
@@ -267,5 +329,3 @@ const styles = StyleSheet.create({
     color: "white",
   },
 });
-
-//#endregion

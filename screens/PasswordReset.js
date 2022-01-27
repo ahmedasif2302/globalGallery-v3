@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+// NATIVE IMPORTS
 import {
   Text,
   View,

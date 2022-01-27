@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+// NATIVE IMPORTS
 import {
   View,
   Text,
@@ -36,10 +37,9 @@ initializeApp(firebaseConfig);
 export default function Post({ navigation }) {
   const [postLoading, setPostLoading] = useState(false);
 
+  // GETTING NAME FROM ASYNC STORAGE AND SHOWING DATE AND TIME
   useEffect(() => {
     getName();
-  });
-  useEffect(() => {
     showDate();
     showTime();
   });
@@ -56,7 +56,7 @@ export default function Post({ navigation }) {
   const storage = getStorage();
   const postImgPathReference = ref(storage, `posts/${randomKey}`);
 
-  //
+  // DATE
   const [fullTime, setFullTime] = useState(null);
   const [fullDate, setFullDate] = useState(null);
 

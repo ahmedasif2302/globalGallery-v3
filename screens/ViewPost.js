@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+// NATIVE IMPORTS
 import {
   View,
   Text,
@@ -6,7 +7,6 @@ import {
   ScrollView,
   FlatList,
   TouchableOpacity,
-  Button,
 } from "react-native";
 // IMPORT SAFE AREA VIEW
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -22,19 +22,14 @@ import {
 } from "react-native-cards";
 
 // FIREBASE IMPORTS
-import {
-  collection,
-  getDocs,
-  doc,
-  setDoc,
-  deleteDoc,
-} from "firebase/firestore/lite";
+import { collection, getDocs } from "firebase/firestore/lite";
 import { getFirestore } from "firebase/firestore/lite";
 import firebaseConfig from "../config/firebaseConfig";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { initializeApp } from "firebase/app";
 
 initializeApp(firebaseConfig);
+
 export default function ViewPost({ navigation }) {
   // #MAIN
   const [posts, setPosts] = useState([]);
@@ -42,6 +37,7 @@ export default function ViewPost({ navigation }) {
   const db = getFirestore();
   const storage = getStorage();
 
+  // GETTING POSTS FROM FIREBASE FIRESTORE
   useEffect(() => {
     getPosts();
   }, []);

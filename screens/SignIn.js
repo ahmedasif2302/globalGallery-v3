@@ -9,7 +9,11 @@ import {
   Button,
 } from "react-native";
 // FIREBASE IMPORTS
-import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import {
+  getAuth,
+  signInWithEmailAndPassword,
+  onAuthStateChanged,
+} from "firebase/auth";
 import { initializeApp } from "firebase/app";
 import firebaseConfig from "../config/firebaseConfig";
 
@@ -21,6 +25,17 @@ export default function SignIn({ navigation }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+
+  // GETTING THE CURRENT USER
+  useEffect(() => {
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        navigation.navigate("bottomTab");
+      } else {
+        // User is signed out
+      }
+    });
+  });
 
   // FIREBASE
   const auth = getAuth();
@@ -54,7 +69,6 @@ export default function SignIn({ navigation }) {
       <View style={styles.leftCircle}></View>
       <View style={styles.rightCircle}></View>
       <View style={styles.container}>
-        <Button title="TEMP" onPress={() => navigation.navigate("bottomTab")} />
         <Text style={styles.title}>WELCOME BACK !</Text>
         <View style={styles.formContainer}>
           <View style={styles.emailInput}>
@@ -68,7 +82,9 @@ export default function SignIn({ navigation }) {
           </View>
 
           <View style={styles.passwordInput}>
-            <Text style={styles.formLabel}>PASSWORD</Text>
+            <Text style={{ ...styles.formLabel, paddingTop: 10 }}>
+              PASSWORD
+            </Text>
             <TextInput
               style={styles.formField}
               onChangeText={(password) => setPassword(password)}
@@ -127,26 +143,30 @@ const styles = StyleSheet.create({
   },
   title: {
     textAlign: "center",
-    fontSize: 20,
+    fontSize: 40,
     fontWeight: "bold",
     color: "#9729ff",
+    fontFamily: "extraBold-special-title",
   },
   formContainer: {
     marginLeft: 64,
-    marginTop: 32,
+    marginTop: 10,
     marginRight: 32,
   },
   formLabel: {
     color: "#8e93a1",
-    paddingTop: 20,
+    fontFamily: "semiBold-special-description",
+    fontSize: 20,
   },
   formField: {
     borderBottomWidth: 1,
     borderBottomColor: "#8e93a1",
-    marginTop: 10,
+    marginTop: 0,
     paddingBottom: 5,
     color: "#9729ff",
     fontWeight: "bold",
+    fontFamily: "semiBold-special-description",
+    fontSize: 20,
   },
   signInBtn: {
     backgroundColor: "#9729ff",

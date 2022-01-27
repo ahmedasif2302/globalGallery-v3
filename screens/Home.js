@@ -1,4 +1,5 @@
 import React from "react";
+// NATIVE IMPORTS
 import { View, Text, StyleSheet, Image } from "react-native";
 // SAFE AREA VIEW
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -50,4 +51,3 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
 });
-//#endregion
