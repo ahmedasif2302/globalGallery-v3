@@ -27,7 +27,7 @@ export default function Profile(props) {
   useEffect(() => {
     getName();
     getProfile();
-  });
+  },[useName,setAvator]);
 
   // # VARIABLES
   // SETTING AVATOR IMAGE
